@@ -16,7 +16,7 @@ class OrderController extends Controller
             $order = Order::with('orderItems')->findOrFail($orderId);
 
             // no need to process completed or failed orders
-            if (in_array($order->order_status, ['completed', 'failed'])) {
+            if (in_array($order->status, ['completed', 'failed'])) {
                 return response()->json([
                     'message' => 'Order cannot be processed again.',
                 ], 422);
