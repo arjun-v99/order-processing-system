@@ -10,3 +10,6 @@
 9. If you are using postman you can write a script to automatically save the token and use it for subsequent request.
 10. Access `/api/dashboard` with GET method for dashboard data.
 11. Access `api/order/{your_order_id_here}` wih POST method for processing the orders.
+
+# Note
+1. Make sure your HTTP request's `Accept` header value is `application/json` to receive proper json responses
