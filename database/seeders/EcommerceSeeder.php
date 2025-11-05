@@ -25,7 +25,6 @@ class EcommerceSeeder extends Seeder
             ->has(
                 \App\Models\Order::factory(3)
                     ->has(\App\Models\OrderItem::factory(3))
-                    ->has(\App\Models\OrderProcessingJob::factory(2), 'processingJobs')
             )
             ->create();
     }
