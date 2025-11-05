@@ -41,7 +41,7 @@ class ProcessOrderJob implements ShouldQueue
         $processingRecord = OrderProcessingJob::create([
             'order_id' => $this->order->id,
             'status' => 'in_progress',
-            'started_at' => $startTime
+            'started_at' => now()
         ]);
 
         try {
@@ -76,7 +76,7 @@ class ProcessOrderJob implements ShouldQueue
             // success
             $processingRecord->update([
                 'status' => 'completed',
-                'completed_at' => $startTime->diffInSeconds(now())
+                'completed_at' => now()
             ]);
 
             Log::info("Order {$this->order->id} processed successfully.");
