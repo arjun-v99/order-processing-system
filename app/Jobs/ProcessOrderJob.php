@@ -38,30 +38,29 @@ class ProcessOrderJob implements ShouldQueue
     {
         $startTime = now();
 
-
+        $processingRecord = OrderProcessingJob::create([
+            'order_id' => $this->order->id,
+            'status' => 'in_progress',
+            'started_at' => $startTime
+        ]);
 
         try {
-            $processingRecord = OrderProcessingJob::create([
-                'order_id' => $this->order->id,
-                'status' => 'processing',
-            ]);
-
             DB::transaction(function () {
                 // update order status to processing
-                $this->order->update(['order_status' => 'processing']);
+                $this->order->update(['status' => 'processing']);
 
                 $totalAmount = 0;
 
-                foreach ($this->order->items as $item) {
+                foreach ($this->order->orderItems as $item) {
                     $product = Product::lockForUpdate()->find($item->product_id);
 
                     // validate product availability
-                    if ($product->stock < $item->quantity) {
+                    if ($product->stock_quantity < $item->quantity) {
                         throw new \Exception("Insufficient stock for product: {$product->name}");
                     }
 
                     // update stock quantity
-                    $product->decrement('stock', $item->quantity);
+                    $product->decrement('stock_quantity', $item->quantity);
 
                     // calculate total
                     $totalAmount += $item->quantity * $product->price;
@@ -69,15 +68,15 @@ class ProcessOrderJob implements ShouldQueue
 
                 // update final amount
                 $this->order->update([
-                    'total' => $totalAmount,
-                    'order_status' => 'completed'
+                    'total_amount' => $totalAmount,
+                    'status' => 'completed'
                 ]);
             });
 
             // success
             $processingRecord->update([
                 'status' => 'completed',
-                'processing_time' => $startTime->diffInSeconds(now())
+                'completed_at' => $startTime->diffInSeconds(now())
             ]);
 
             Log::info("Order {$this->order->id} processed successfully.");
