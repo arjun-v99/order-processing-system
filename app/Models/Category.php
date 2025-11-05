@@ -18,4 +18,15 @@ class Category extends Model
     {
         return $this->hasMany(Product::class);
     }
+
+    // A Category has many OrderItems through the Product model
+    public function orderItems()
+    {
+        return $this->hasManyThrough(
+            OrderItem::class,
+            Product::class,
+            'category_id',
+            'product_id'
+        );
+    }
 }
